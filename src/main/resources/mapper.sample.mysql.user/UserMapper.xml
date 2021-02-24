@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.springboottraining.springboottraining.restapi.user.mapper.UserMapper">
+
+    <!-- 검색 및 필터 조건에 대한 사용자 목록을 반환합니다. -->
+    <select id="selectUserList" resultType="com.springboottraining.springboottraining.restapi.user.domain.User">
+        SELECT  uid
+        ,login_id
+        ,nm
+        ,birth
+        ,email
+        ,moblphon
+        ,IFNULL(login_cnt, 0) AS login_cnt
+        ,regist_dttm
+        FROM   tb_cmm_user
+
+        <where>
+            <if test="keyword != '' and keyword != null">
+                AND (   login_id LIKE CONCAT ('%', #{keyword}, '%')
+                OR nm       LIKE CONCAT ('%', #{keyword}, '%')
+                )
+            </if>
+        </where>
+    </select>
+
+    <!-- 사용자 정보를 반환합니다. -->
+    <select id="selectUser" resultType="com.springboottraining.springboottraining.restapi.user.domain.User">
+        SELECT  uid
+             ,login_id
+             ,nm
+             ,birth
+             ,email
+             ,moblphon
+             ,IFNULL(login_cnt, 0) AS login_cnt
+             ,regist_dttm
+        FROM   tb_cmm_user
+        WHERE  uid = #{uid}
+    </select>
+
+    <!-- 사용자를 등록합니다. -->
+    <insert id="insertUser">
+        INSERT INTO tb_cmm_user (
+                                 uid
+                                ,login_id
+                                ,nm
+                                ,birth
+                                ,email
+                                ,moblphon
+                                ,login_cnt
+                                ,regist_dttm
+        ) VALUES (
+                     #{uid}
+                 ,#{loginId}
+                 ,#{nm}
+                 ,#{birth}
+                 ,#{email}
+                 ,#{moblphon}
+                 ,#{loginCnt}
+                 ,NOW()
+                 )
+    </insert>
+
+    <!-- 사용자를 수정합니다. -->
+    <update id="updateUser">
+        UPDATE tb_cmm_user
+        SET     nm       = #{nm}
+          ,birth    = #{birth}
+          ,email    = #{email}
+          ,moblphon = #{moblphon}
+        WHERE  uid = #{uid}
+    </update>
+
+    <!-- 사용자를 삭제합니다. -->
+    <delete id="deleteUser">
+        DELETE
+        FROM   tb_cmm_user
+        WHERE  uid = #{uid}
+    </delete>
+
+    <!-- 선택된 다중 사용자를 삭제합니다. -->
+    <delete id="deleteUserList">
+        DELETE
+        FROM   tb_cmm_user
+        <where>
+            uid IN
+            <foreach collection="list" item="item" open="(" close=")" separator=",">
+                #{item.uid}
+            </foreach>
+        </where>
+    </delete>
+</mapper>
